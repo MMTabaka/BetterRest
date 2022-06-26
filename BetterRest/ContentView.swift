@@ -12,9 +12,7 @@ struct ContentView: View {
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
     
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
+    @State private var bedtime = "10:38 PM"
     
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -56,15 +54,27 @@ struct ContentView: View {
                         .font(.headline)
                 }
                 
+                Section {
+                    HStack {
+                        Spacer()
+                        Text(bedtime)
+                            .font(.largeTitle)
+                        Spacer()
+                    }
+                } header: {
+                    Text("Recommended bedtime")
+                        .font(.headline)
+                }
             }
             .navigationTitle("BetterRest")
-            .toolbar() {
-                Button("Calculate", action: calculateBedtime)
+            .onChange(of: wakeUp) { newValue in
+                calculateBedtime()
             }
-            .alert(alertTitle, isPresented: $showingAlert) {
-                Button("OK", action: { })
-            } message: {
-                Text(alertMessage)
+            .onChange(of: sleepAmount) { newValue in
+                calculateBedtime()
+            }
+            .onChange(of: coffeeAmount) { newValue in
+                calculateBedtime()
             }
         }
     }
@@ -82,14 +92,10 @@ struct ContentView: View {
             
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            bedtime = sleepTime.formatted(date: .omitted, time: .shortened)
         } catch {
-            alertTitle = "Error"
-            alertMessage = "Sorry, there was a problem calculating your bedtime."
+            bedtime = "Sorry, there was a problem calculating your bedtime."
         }
-        
-        showingAlert = true
     }
 }
 
